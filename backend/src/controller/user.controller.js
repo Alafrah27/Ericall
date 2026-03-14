@@ -97,3 +97,71 @@ export const verifyOtp = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const resendOtp = async (req, res) => {
+  try {
+    const { phone } = req.body;
+
+    if (!phone) {
+      return res.status(400).json({
+        success: false,
+        message: "Phone number is required to resend OTP",
+      });
+    }
+
+    // 1. Verify the user actually exists in your DB before sending another SMS
+    const user = await User.findOne({ phone });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "No pending registration found for this number",
+      });
+    }
+
+    // 2. Trigger Twilio to send a new code
+    // Twilio Verify automatically handles the "resend" logic if you call .create again
+    await Client.verify.v2
+      .services(process.env.TWILIO_VERIFY_SERVICE_ID)
+      .verifications.create({
+        to: phone,
+        channel: "sms",
+      });
+
+    return res.status(200).json({
+      success: true,
+      message: "A new OTP has been sent to your phone",
+    });
+  } catch (error) {
+    console.error("Resend OTP Error:", error.message);
+
+    // Handle Twilio-specific rate limiting (e.g., user requesting too fast)
+    if (error.status === 429) {
+      return res.status(429).json({
+        success: false,
+        message: "Too many requests. Please wait a moment before trying again.",
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to resend OTP",
+      error: error.message,
+    });
+  }
+};
+
+export const getMyProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error("Get My Profile Error:", error.message);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
