@@ -1,4 +1,4 @@
-import Transation from "../modal/transations.modal";
+import Transation from "../modal/transations.modal.js";
 
 export const getTransations = async (req, res) => {
   try {
@@ -13,7 +13,7 @@ export const getTransations = async (req, res) => {
   }
 };
 
-export const deleteManyTransations = async (req, res) => {
+export const deleteMultiTransations = async (req, res) => {
   try {
     const userId = req.user.id;
     const transations = await Transation.deleteMany({ userId });

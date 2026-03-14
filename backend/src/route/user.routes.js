@@ -12,6 +12,6 @@ import { verifyJWT } from "../middleWare/jwtAuth.js";
 router.post("/register", RegisterUserWithPhone);
 router.post("/verify", verifyOtp);
 router.post("/resendOtp", resendOtp);
-router.post("/me", verifyJWT, getMyProfile);
+router.post("/profile", verifyJWT, getMyProfile);
 
 export default router;
