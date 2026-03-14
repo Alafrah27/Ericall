@@ -3,6 +3,12 @@ import User from "../modal/user.modal.js";
 import dotenv from "dotenv";
 dotenv.config();
 
+const generateToken = (userId) => {
+  return jwt.sign({ userId }, process.env.JWT_SECRET, {
+    expiresIn: "90d",
+  });
+};
+
 export const RegisterUserWithPhone = async (req, res) => {
   try {
     const { phone } = req.body;
@@ -77,10 +83,12 @@ export const verifyOtp = async (req, res) => {
       return res.status(404).json({ message: "User record not found" });
     }
 
+    const token = generateToken(user._id);
     return res.status(200).json({
       message: "OTP verified successfully",
       success: true,
       user, // Optionally return user data or a JWT token here
+      token,
     });
   } catch (error) {
     console.error("Verification Error:", error);
