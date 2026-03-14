@@ -1,6 +1,7 @@
 import Client from "../lib/twilioServices.js";
 import User from "../modal/user.modal.js";
 import dotenv from "dotenv";
+import jwt from "jsonwebtoken";
 dotenv.config();
 
 const generateToken = (userId) => {
@@ -25,6 +26,7 @@ export const RegisterUserWithPhone = async (req, res) => {
         verified: false,
         balance: 0,
       });
+
       await user.save();
     }
 
