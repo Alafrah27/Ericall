@@ -43,7 +43,8 @@ export const createPaymentWithPaypal = async (req, res) => {
 
 export const capturePaymentWithPaypal = async (req, res) => {
   try {
-    const { orderId, userId } = req.body;
+    const { orderId } = req.body;
+    const userId = req.user.id;
 
     if (!orderId || !userId) {
       return res.status(400).json({ message: "Missing orderId or userId" });
@@ -112,5 +113,3 @@ export const paypalSuccess = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
-
-

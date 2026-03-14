@@ -7,6 +7,8 @@ import connectDB from "./lib/connectDb.js";
 import job from "./lib/cron.js";
 
 import userRoutes from "./route/user.routes.js";
+import paypalRoutes from "./route/paypal.route.js";
+import transationRoutes from "./route/transation.route.js";
 dotenv.config();
 job.start();
 const PORT = process.env.PORT || 3000;
@@ -20,6 +22,8 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/api/v1/auth", userRoutes);
+app.use("/api/v1/paypal", paypalRoutes);
+app.use("/api/v1/transation", transationRoutes);
 
 connectDB()
   .then(() => {
