@@ -3,7 +3,7 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import cors from "cors";
 
-import connectDB from "./lib/connectdb.js";
+import connectDB from "./lib/connectDb.js";
 
 import userRoutes from "./route/user.routes.js";
 dotenv.config();
@@ -14,7 +14,7 @@ app.use(express.json({ limit: "5mb" })); // req.body
 app.use(cookieParser());
 app.use(cors("*"));
 
-app.get("/health", (req, res) => {gin
+app.get("/health", (req, res) => {
   res.status(200).send("OK");
 });
 
