@@ -59,7 +59,7 @@ export default function Register() {
                         <View style={styles.content}>
                             {/* Header Section */}
                             <View style={styles.headerContainer}>
-                                <Text style={styles.greeting}>Join the Conversation</Text>
+                                <Text style={styles.greeting}>Register Your Account</Text>
                                 <Text style={styles.subtitle}>
                                     Enter your phone number to stay connected with the people who matter most.
                                 </Text>
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
         marginBottom: 40,
     },
     greeting: {
-        fontSize: 32,
+        fontSize: 30,
         fontWeight: '800',
         color: '#111827',
         marginBottom: 12,
