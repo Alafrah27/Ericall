@@ -5,6 +5,6 @@ const Enviroment = new paypal.core.SandboxEnvironment(
   process.env.PAYPAL_CLIENT_SECRET,
 );
 
-const client = new paypal.core.PayPalHttpClient(Enviroment);
+const Client = new paypal.core.PayPalHttpClient(Enviroment);
 
-export default client;
+export default Client;

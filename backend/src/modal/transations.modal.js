@@ -15,7 +15,7 @@ const transationSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    reason: {
+    reference: {
       type: String,
       default: "topup",
     },
