@@ -23,7 +23,7 @@ const CallScreen = () => {
 
             const res = await InitiateCall(phone);
             if (res.success) {
-                setCallStatus("Ringing your physical phone...");
+                setCallStatus("Calling recipient...");
             } else {
                 setCallStatus(res.message || "Failed to initiate call");
                 setIsFailed(true);
@@ -40,14 +40,14 @@ const CallScreen = () => {
                 <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color="#111827" />
                 </TouchableOpacity>
-                <Text style={styles.title}>Calling Contact</Text>
+                <Text style={styles.title}>Direct Call</Text>
                 <View style={{ width: 40 }} />
             </View>
 
             <View style={styles.body}>
                 <Ionicons name="person-circle-outline" size={140} color="#b88144" style={styles.avatarPlaceholder} />
                 
-                <Text style={styles.contactName}>{name || 'Unknown Caller'}</Text>
+                <Text style={styles.contactName}>{name || 'Recipient'}</Text>
                 <Text style={styles.contactPhone}>{phone || 'Unknown Number'}</Text>
                 
                 <View style={styles.statusContainer}>
@@ -59,7 +59,7 @@ const CallScreen = () => {
                 
                 {!isFailed && (
                     <Text style={styles.instructionText}>
-                        Please answer your physical phone to connect.
+                        The system is placing a direct PSTN call to the number above.
                     </Text>
                 )}
 
