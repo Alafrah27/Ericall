@@ -1,13 +1,11 @@
 import twilio from "twilio";
 import User from "../modal/user.modal.js";
-import Client from "../lib/paypal.js";
 import dotenv from "dotenv";
 import Call from "../modal/calls.modal.js";
-import twilioClient from "../lib/twilioServices.js"; // fallback if Client is meant to be Twilio and imported from paypal.js by mistake. Wait, looking at lines 3 it's importing from paypal.js, which is wrong, Twilio client is needed. Let me fix the import.
+import twilioClient from "../lib/twilioServices.js"; 
 dotenv.config();
 
-// Assuming Client was incorrectly mapped to paypal.js in the original, I'll instantiate twilio here.
-const TwilioClient = twilio(process.env.TWILIO_API_SID, process.env.TWILIO_API_SECRECT, { accountSid: process.env.TWILIO_ACCOUNT_SID });
+const TwilioClient = twilioClient;
 
 // Pricing constants
 const TwilioCostPricePerMinute = 0.335;
@@ -77,8 +75,8 @@ export const MakeCall = async (req, res) => {
       maxMinutes: MaxMinutes
     });
   } catch (error) {
-    console.error("Twilio MakeCall Error:", error);
-    return res.status(500).json({ message: "Failed to initiate PSTN call" });
+    console.error("Twilio MakeCall Error Details:", error);
+    return res.status(500).json({ message: "Failed to initiate PSTN call", error: error.message });
   }
 };
 

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocalSearchParams as useExpoParams, useRouter as useExpoRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useStore } from '../../../store/store';
+import { useStore } from '../../store/store';
 
 const CallScreen = () => {
     const { id, name, phone } = useExpoParams();
