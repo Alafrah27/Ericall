@@ -41,6 +41,7 @@ export const RegisterUserWithPhone = async (req, res) => {
     return res.status(200).json({
       message: "OTP sent successfully",
       success: true,
+      user,
     });
   } catch (error) {
     console.error("Twilio Error:", error.message);
@@ -163,5 +164,3 @@ export const getMyProfile = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
-
-

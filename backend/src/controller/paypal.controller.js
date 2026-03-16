@@ -34,7 +34,16 @@ export const createPaymentWithPaypal = async (req, res) => {
     });
 
     const order = await Client.execute(request);
-    return res.status(200).json({ id: order.result.id });
+    
+    // Extract the approve URL to return to the frontend
+    const approveLink = order.result.links.find(link => link.rel === "approve");
+    const approveUrl = approveLink ? approveLink.href : null;
+
+    if (!approveUrl) {
+      throw new Error("No approve URL returned from PayPal.");
+    }
+    
+    return res.status(200).json({ id: order.result.id, approveUrl });
   } catch (error) {
     console.error("PayPal Create Error:", error);
     return res.status(500).json({ message: "Failed to create PayPal order" });

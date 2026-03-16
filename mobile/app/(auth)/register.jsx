@@ -15,6 +15,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useRouter } from 'expo-router';
+import Toast from 'react-native-toast-message';
+import { useStore } from '../../store/store';
 
 const formSchema = z.object({
     phoneNumber: z
@@ -26,9 +29,12 @@ const formSchema = z.object({
 });
 
 export default function Register() {
+    const router = useRouter();
     const [countryCode, setCountryCode] = useState('US');
     const [callingCode, setCallingCode] = useState('1');
     const [isFocused, setIsFocused] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const { RegisterWithTwilio } = useStore();
 
     const {
         control,
@@ -42,10 +48,18 @@ export default function Register() {
         mode: 'onChange',
     });
 
-    const onSubmit = (data) => {
-        console.log(`Sending OTP to +${callingCode}${data.phoneNumber}`);
-        // Navigate to the verify screen and pass the phone number if needed
-        router.push('/verify');
+    const onSubmit = async (data) => {
+        setIsLoading(true);
+        const fullPhone = `+${callingCode}${data.phoneNumber}`;
+        console.log(`Sending OTP to ${fullPhone}`);
+        const result = await RegisterWithTwilio(fullPhone);
+        setIsLoading(false);
+        if (result.success) {
+            Toast.show({ type: 'success', text1: 'Success', text2: 'OTP sent successfully!' });
+            router.push({ pathname: '/verify', params: { phone: fullPhone } });
+        } else {
+            Toast.show({ type: 'error', text1: 'Error', text2: result.message });
+        }
     };
 
     return (
@@ -124,10 +138,10 @@ export default function Register() {
                             <TouchableOpacity
                                 style={[styles.button, !isValid && styles.buttonDisabled]}
                                 onPress={handleSubmit(onSubmit)}
-                                disabled={!isValid}
+                                disabled={!isValid || isLoading}
                                 activeOpacity={0.8}
                             >
-                                <Text style={styles.buttonText}>Send OTP</Text>
+                                <Text style={styles.buttonText}>{isLoading ? "Sending..." : "Send OTP"}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>

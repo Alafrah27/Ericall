@@ -14,7 +14,9 @@ import OTPTextView from 'react-native-otp-textinput';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import Toast from 'react-native-toast-message';
+import { useStore } from '../../store/store';
 
 // Form validation schema using Zod for a 6 digit OTP
 const otpSchema = z.object({
@@ -26,8 +28,11 @@ const otpSchema = z.object({
 
 export default function VerifyOtp() {
     const router = useRouter();
+    const { phone } = useLocalSearchParams();
     const otpInput = useRef(null);
     const [timer, setTimer] = useState(30);
+    const [isLoading, setIsLoading] = useState(false);
+    const { VerifyOtp, RegisterWithTwilio } = useStore();
 
     const {
         control,
@@ -52,16 +57,30 @@ export default function VerifyOtp() {
         return () => clearInterval(interval);
     }, [timer]);
 
-    const handleResend = () => {
+    const handleResend = async () => {
         if (timer === 0) {
             setTimer(30);
             console.log("Resending OTP...");
+            const result = await RegisterWithTwilio(phone);
+            if (result.success) {
+                Toast.show({ type: 'success', text1: 'Sent', text2: 'A new OTP has been sent' });
+            } else {
+                Toast.show({ type: 'error', text1: 'Error', text2: result.message });
+            }
         }
     };
 
-    const onSubmit = (data) => {
+    const onSubmit = async (data) => {
+        setIsLoading(true);
         console.log(`Verifying OTP: ${data.otp}`);
-        // Handle successful verification logic here
+        const result = await VerifyOtp(phone, data.otp);
+        setIsLoading(false);
+        if (result.success) {
+            Toast.show({ type: 'success', text1: 'Verified', text2: 'Welcome to Ericall!' });
+            router.replace('/home');
+        } else {
+            Toast.show({ type: 'error', text1: 'Verification Failed', text2: result.message });
+        }
     };
 
     return (
@@ -99,7 +118,7 @@ export default function VerifyOtp() {
                                         />
                                     )}
                                 />
-                                
+
                                 {errors.otp && (
                                     <Text style={styles.errorText}>
                                         {errors.otp.message}
@@ -110,7 +129,7 @@ export default function VerifyOtp() {
                             {/* Resend Action */}
                             <View style={styles.resendContainer}>
                                 <Text style={styles.resendText}>Didn't receive code? </Text>
-                                <TouchableOpacity 
+                                <TouchableOpacity
                                     onPress={handleResend}
                                     disabled={timer > 0}
                                     activeOpacity={0.6}
@@ -128,10 +147,10 @@ export default function VerifyOtp() {
                             <TouchableOpacity
                                 style={[styles.button, !isValid && styles.buttonDisabled]}
                                 onPress={handleSubmit(onSubmit)}
-                                disabled={!isValid}
+                                disabled={!isValid || isLoading}
                                 activeOpacity={0.8}
                             >
-                                <Text style={styles.buttonText}>Verify Now</Text>
+                                <Text style={styles.buttonText}>{isLoading ? "Verifying..." : "Verify Now"}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
