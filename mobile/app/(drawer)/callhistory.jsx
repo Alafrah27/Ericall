@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useStore } from '../../../store/store';
+import { useStore } from '../../store/store';
 import DrawerToggleButton from '@/components/DrawerToggleButton';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
-export default function Recents() {
+export default function CallHistory() {
     const { GetCallHistory } = useStore();
     const [calls, setCalls] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -47,7 +47,7 @@ export default function Recents() {
             <View style={[styles.iconContainer, { backgroundColor: item.status === 'completed' ? '#ecfdf5' : '#fef2f2' }]}>
                 <Ionicons 
                     name={item.status === 'completed' ? "call-outline" : "close-circle-outline"} 
-                    size={22} 
+                    size={24} 
                     color={item.status === 'completed' ? "#10b981" : "#ef4444"} 
                 />
             </View>
@@ -60,7 +60,7 @@ export default function Recents() {
                 </View>
             </View>
             <View style={styles.rightContainer}>
-                <Text style={styles.cost}>-${item.TotalCost.toFixed(2)}</Text>
+                <Text style={styles.cost}>-${item.TotalCost.toFixed(3)}</Text>
                 <Text style={[styles.statusText, { color: item.status === 'completed' ? '#10b981' : '#ef4444' }]}>
                     {item.status}
                 </Text>
@@ -72,7 +72,7 @@ export default function Recents() {
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <DrawerToggleButton />
-                <Text style={styles.headerTitle}>Recents</Text>
+                <Text style={styles.headerTitle}>Call History</Text>
                 <View style={{ width: 40 }} />
             </View>
 
@@ -86,8 +86,8 @@ export default function Recents() {
                 </View>
             ) : calls.length === 0 ? (
                 <View style={styles.centered}>
-                    <Ionicons name="time-outline" size={60} color="#cbd5e1" />
-                    <Text style={styles.emptyText}>No recent activity</Text>
+                    <Ionicons name="call-outline" size={60} color="#cbd5e1" />
+                    <Text style={styles.emptyText}>No recent calls</Text>
                 </View>
             ) : (
                 <FlatList
@@ -106,47 +106,45 @@ export default function Recents() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#f9fafb' },
+    container: { flex: 1, backgroundColor: '#ffffff' },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 15,
-        paddingBottom: 10,
-        backgroundColor: '#f9fafb',
+        paddingHorizontal: 10,
+        paddingBottom: 16,
+        backgroundColor: '#ffffff',
     },
-    headerTitle: { fontSize: 24, fontWeight: '700', color: '#111827' },
+    headerTitle: { fontSize: 22, fontWeight: '700', color: '#111827' },
     centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     listContainer: { padding: 16 },
     card: {
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#ffffff',
-        padding: 14,
+        padding: 16,
         borderRadius: 16,
-        marginBottom: 10,
-        shadowColor: '#000',
-        shadowOpacity: 0.02,
-        shadowRadius: 5,
-        elevation: 1,
+        marginBottom: 12,
+        borderWidth: 1,
+        borderColor: '#f3f4f6',
     },
     iconContainer: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
+        width: 48,
+        height: 48,
+        borderRadius: 24,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 14,
+        marginRight: 16,
     },
     details: { flex: 1 },
     phone: { fontSize: 16, fontWeight: '600', color: '#1f2937' },
-    metaRow: { flexDirection: 'row', alignItems: 'center', marginTop: 2 },
-    date: { fontSize: 13, color: '#9ca3af' },
-    dot: { marginHorizontal: 4, color: '#d1d5db' },
-    duration: { fontSize: 13, color: '#9ca3af' },
+    metaRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
+    date: { fontSize: 13, color: '#6b7280' },
+    dot: { marginHorizontal: 6, color: '#9ca3af' },
+    duration: { fontSize: 13, color: '#6b7280' },
     rightContainer: { alignItems: 'flex-end' },
     cost: { fontSize: 15, fontWeight: '700', color: '#374151' },
-    statusText: { fontSize: 11, fontWeight: '700', marginTop: 2, textTransform: 'uppercase', letterSpacing: 0.5 },
+    statusText: { fontSize: 12, fontWeight: '600', marginTop: 4, textTransform: 'capitalize' },
     emptyText: { marginTop: 12, fontSize: 16, color: '#94a3b8' },
     errorText: { color: '#ef4444', fontSize: 16 },
 });

@@ -1,13 +1,38 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
 import { useLocalSearchParams as useExpoParams, useRouter as useExpoRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useStore } from '../../../store/store';
 
 const CallScreen = () => {
     const { id, name, phone } = useExpoParams();
     const router = useExpoRouter();
-    const [isMuted, setIsMuted] = useState(false);
+    const { InitiateCall } = useStore();
+    
+    const [callStatus, setCallStatus] = useState('Initiating Secure Call...');
+    const [isFailed, setIsFailed] = useState(false);
+
+    useEffect(() => {
+        const startCall = async () => {
+            if (!phone) {
+                setCallStatus("Invalid Phone Number");
+                setIsFailed(true);
+                return;
+            }
+
+            const res = await InitiateCall(phone);
+            if (res.success) {
+                setCallStatus("Ringing your physical phone...");
+            } else {
+                setCallStatus(res.message || "Failed to initiate call");
+                setIsFailed(true);
+                Alert.alert("Call Failed", res.message || "Something went wrong.");
+            }
+        };
+
+        startCall();
+    }, [phone]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -24,19 +49,21 @@ const CallScreen = () => {
                 
                 <Text style={styles.contactName}>{name || 'Unknown Caller'}</Text>
                 <Text style={styles.contactPhone}>{phone || 'Unknown Number'}</Text>
-                <Text style={styles.callStatus}>Ringing...</Text>
+                
+                <View style={styles.statusContainer}>
+                    {!isFailed && <ActivityIndicator size="small" color="#b88144" style={{ marginRight: 8 }} />}
+                    <Text style={[styles.callStatus, isFailed && styles.callStatusError]}>
+                        {callStatus}
+                    </Text>
+                </View>
+                
+                {!isFailed && (
+                    <Text style={styles.instructionText}>
+                        Please answer your physical phone to connect.
+                    </Text>
+                )}
 
                 <View style={styles.actionsRow}>
-                    <TouchableOpacity 
-                        style={[styles.actionButton, isMuted && styles.actionButtonActive]} 
-                        onPress={() => setIsMuted(!isMuted)}
-                    >
-                        <Ionicons name={isMuted ? "mic-off" : "mic"} size={28} color={isMuted ? "#fff" : "#4b5563"} />
-                        <Text style={[styles.actionText, isMuted && styles.actionTextActive]}>
-                            {isMuted ? 'Muted' : 'Mute'}
-                        </Text>
-                    </TouchableOpacity>
-
                     <TouchableOpacity style={styles.endCallButton} onPress={() => router.back()}>
                         <Ionicons name="call" size={32} color="#fff" style={{ transform: [{ rotate: '135deg' }] }} />
                     </TouchableOpacity>
@@ -86,11 +113,26 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         marginBottom: 12,
     },
+    statusContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 10,
+    },
     callStatus: {
         fontSize: 16,
         color: '#b88144',
         fontWeight: '600',
-        marginBottom: 60,
+    },
+    callStatusError: {
+        color: '#ef4444',
+    },
+    instructionText: {
+        fontSize: 14,
+        color: '#6b7280',
+        textAlign: 'center',
+        paddingHorizontal: 40,
+        marginBottom: 40,
     },
     actionsRow: {
         flexDirection: 'row',
@@ -99,28 +141,6 @@ const styles = StyleSheet.create({
         gap: 40,
         marginTop: 'auto',
         marginBottom: 80,
-    },
-    actionButton: {
-        width: 75,
-        height: 75,
-        borderRadius: 37.5,
-        backgroundColor: '#e5e7eb',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    actionButtonActive: {
-        backgroundColor: '#6b7280',
-    },
-    actionText: {
-        fontSize: 12,
-        color: '#4b5563',
-        marginTop: 4,
-        fontWeight: '600',
-        position: 'absolute',
-        bottom: -24,
-    },
-    actionTextActive: {
-        color: '#6b7280',
     },
     endCallButton: {
         backgroundColor: '#ef4444',

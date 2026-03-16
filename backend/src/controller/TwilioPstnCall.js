@@ -84,7 +84,9 @@ export const MakeCall = async (req, res) => {
 
 export const TwilioWebhook = async (req, res) => {
   try {
-    const { target, userId, twilioCallId } = req.query;
+    const { target, userId } = req.query;
+    const parentCallSid = req.body.CallSid; // This is the SID of Leg 1 (Twilio -> User)
+    
     const VoiceResponse = twilio.twiml.VoiceResponse;
     const response = new VoiceResponse();
 
@@ -103,7 +105,7 @@ export const TwilioWebhook = async (req, res) => {
       // Leg 2: Bridge the call to the target phone number and track exactly the Dial duration
       const dial = response.dial({ 
         timeLimit: MaxSeconds,
-        action: `${process.env.DOMAIN_URL}/api/v1/calls/call-status?userId=${userId}&parentCallId=${twilioCallId}`,
+        action: `${process.env.DOMAIN_URL}/api/v1/calls/call-status?userId=${userId}&parentCallId=${parentCallSid}`,
         method: 'POST'
       });
       dial.number(target);
@@ -166,6 +168,17 @@ export const CallStatus = async (req, res) => {
     return res.status(200).json({ message: "Call billing updated successfully" });
   } catch (error) {
     console.error("Twilio CallStatus Error:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const GetCallsHistory = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const calls = await Call.find({ userId }).sort({ createdAt: -1 });
+    return res.status(200).json({ success: true, calls });
+  } catch (error) {
+    console.error("GetCallsHistory Error:", error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };

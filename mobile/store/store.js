@@ -80,4 +80,24 @@ export const useStore = create((set) => ({
       return { success: false };
     }
   },
+
+  InitiateCall: async (targetPhone) => {
+    try {
+      const res = await instance.post("/calls/", { phone: targetPhone });
+      return { success: true, message: res.data.message, data: res.data };
+    } catch (error) {
+      console.error('Call Error:', error.response?.data || error.message);
+      return { success: false, message: error.response?.data?.message || "Failed to initiate call" };
+    }
+  },
+
+  GetCallHistory: async () => {
+    try {
+      const res = await instance.get("/calls/");
+      return { success: true, calls: res.data.calls };
+    } catch (error) {
+      console.error('Get Call History Error:', error.response?.data || error.message);
+      return { success: false, message: error.response?.data?.message || "Could not fetch call history" };
+    }
+  },
 }));

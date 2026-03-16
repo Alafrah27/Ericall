@@ -47,6 +47,14 @@ export default function DrawerLayout() {
                     ),
 
                 }} />
+                <Drawer.Screen name="callhistory" options={{
+                    drawerLabel: 'Call History',
+                    title: 'Call History',
+                    drawerIcon: ({ color }) => (
+                        <Ionicons name="call-outline" size={24} color={color} />
+                    ),
+
+                }} />
                 <Drawer.Screen name="rate" options={{
                     drawerLabel: 'Rate us',
                     title: 'Rate us',
