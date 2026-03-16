@@ -3,9 +3,11 @@ import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import DrawerToggleButton from '@/components/DrawerToggleButton'
 import Dialpad from '@/components/Dialpad'
+import { useRouter } from 'expo-router'
 
 const DailScreen = () => {
     const [phoneNumber, setPhoneNumber] = useState('');
+    const router = useRouter();
 
     const handlePressNumber = (num) => {
         setPhoneNumber(prev => prev + num);
@@ -17,8 +19,10 @@ const DailScreen = () => {
 
     const handleCall = () => {
         if (!phoneNumber) return;
-        console.log("Calling: ", phoneNumber);
-        // Add actual call logic here
+        router.push({
+            pathname: `/calls/Unknown`,
+            params: { name: 'Unknown', phone: phoneNumber }
+        });
     };
 
     return (
