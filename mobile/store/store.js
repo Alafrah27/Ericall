@@ -58,4 +58,26 @@ export const useStore = create((set) => ({
       return { success: false, message: error.response?.data?.message || "Could not capture payment" };
     }
   },
+
+  GetTransations: async () => {
+    try {
+      const res = await instance.get("/transation/");
+      return { success: true, transations: res.data.transations };
+    } catch (error) {
+      console.error('Get Transactions Error:', error.response?.data || error.message);
+      return { success: false, message: error.response?.data?.message || "Could not fetch transactions" };
+    }
+  },
+
+  Logout: async () => {
+    try {
+      await AsyncStorage.removeItem('phone');
+      await AsyncStorage.removeItem('token');
+      set({ phone: null, token: null, user: null, isVerified: false, isLoggedIn: false });
+      return { success: true };
+    } catch (error) {
+      console.error('Logout Error:', error);
+      return { success: false };
+    }
+  },
 }));

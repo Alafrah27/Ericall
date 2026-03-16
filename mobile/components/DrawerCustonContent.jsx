@@ -4,10 +4,17 @@ import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawe
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { useStore } from '../store/store'
+import { useRouter } from 'expo-router'
 
 const DrawerCustonContent = (props) => {
     const { top, bottom } = useSafeAreaInsets()
-    const { phone } = useStore()
+    const { phone, Logout } = useStore()
+    const router = useRouter()
+
+    const handleLogout = async () => {
+        await Logout()
+        router.replace('/(auth)')
+    }
 
     return (
         <View style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -45,6 +52,7 @@ const DrawerCustonContent = (props) => {
                 <View style={{ flex: 1 }} />
 
                 <TouchableOpacity
+                    onPress={handleLogout}
                     style={{
                         flexDirection: 'row',
                         alignItems: 'center',
