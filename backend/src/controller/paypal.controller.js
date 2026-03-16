@@ -117,7 +117,7 @@ export const paypalCancel = async (req, res) => {
 export const paypalSuccess = async (req, res) => {
   try {
     const { token } = req.query;
-    return res.redirect(`ericall://paypal-success${token ? `?token=${token}` : ''}`);
+    return res.redirect(`ericall://paypal-success?token=${token}`);
   } catch (error) {
     console.error("PayPal Success Error:", error);
     return res.status(500).json({ message: "Internal server error" });
