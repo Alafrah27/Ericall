@@ -15,11 +15,18 @@ const PricePerSecond = PricePerMinute / 60;
 
 export const MakeCall = async (req, res) => {
   try {
-    const { phone } = req.body; // The target destination phone
+    let { phone } = req.body; // The target destination phone
     const userId = req.user.id;
 
     if (!phone) {
       return res.status(400).json({ message: "Destination phone number is required" });
+    }
+
+    // Sanitize phone number: Replace leading '00' with '+' for Twilio E.164 compatibility
+    if (phone.startsWith("00")) {
+      phone = "+" + phone.substring(2);
+    } else if (!phone.startsWith("+")) {
+       phone = "+" + phone;
     }
 
     const user = await User.findById(userId);
