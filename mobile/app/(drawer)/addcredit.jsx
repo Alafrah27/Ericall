@@ -98,12 +98,10 @@ export default function Addcredit() {
             <View style={styles.header}>
                 <DrawerToggleButton />
                 <Text style={styles.headerTitle}>My Wallet</Text>
-                <View style={{ width: 40 }} /> {/* Spacer to center title */}
+                <View style={{ width: 40 }} />
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                
-                {/* Balance Card */}
                 <Animated.View entering={FadeInDown.duration(600).springify().damping(15)} style={styles.cardContainer}>
                     <View style={styles.cardInfo}>
                         <Text style={styles.cardLabel}>Available Balance</Text>
@@ -114,7 +112,6 @@ export default function Addcredit() {
                     </View>
                 </Animated.View>
 
-                {/* Amount Selection */}
                 <Animated.View entering={FadeInDown.duration(600).delay(100).springify().damping(15)} style={styles.selectionSection}>
                     <Text style={styles.sectionTitle}>Select Top-up Amount</Text>
                     
@@ -142,7 +139,6 @@ export default function Addcredit() {
 
             </ScrollView>
 
-            {/* Bottom Payment Button */}
             <Animated.View entering={ZoomIn.duration(500).delay(300)} style={styles.footer}>
                 <TouchableOpacity 
                     style={[styles.paypalButton, isProcessing && styles.paypalButtonDisabled]} 

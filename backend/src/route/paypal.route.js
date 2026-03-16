@@ -11,7 +11,7 @@ const router = express.Router();
 
 router.post("/create-payment", verifyJWT, createPaymentWithPaypal);
 router.post("/capture-payment", verifyJWT, capturePaymentWithPaypal);
-router.get("/cancel", verifyJWT, paypalCancel);
-router.get("/success", verifyJWT, paypalSuccess);
+router.get("/cancel", paypalCancel);
+router.get("/success", paypalSuccess);
 
 export default router;

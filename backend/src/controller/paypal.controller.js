@@ -25,8 +25,8 @@ export const createPaymentWithPaypal = async (req, res) => {
         },
       ],
       application_context: {
-        return_url: "ericall://paypal-success",
-        cancel_url: "ericall://paypal-cancel",
+        return_url: `${process.env.DOMAIN_URL || 'http://localhost:4000'}/api/v1/paypal/success`,
+        cancel_url: `${process.env.DOMAIN_URL || 'http://localhost:4000'}/api/v1/paypal/cancel`,
         brand_name: "Ericall App",
         user_action: "PAY_NOW",
         shipping_preference: "NO_SHIPPING",
@@ -116,7 +116,8 @@ export const paypalCancel = async (req, res) => {
 
 export const paypalSuccess = async (req, res) => {
   try {
-    return res.redirect("ericall://paypal-success");
+    const { token } = req.query;
+    return res.redirect(`ericall://paypal-success${token ? `?token=${token}` : ''}`);
   } catch (error) {
     console.error("PayPal Success Error:", error);
     return res.status(500).json({ message: "Internal server error" });

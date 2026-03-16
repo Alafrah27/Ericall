@@ -3,9 +3,11 @@ import React from 'react'
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
+import { useStore } from '../store/store'
 
 const DrawerCustonContent = (props) => {
     const { top, bottom } = useSafeAreaInsets()
+    const { phone } = useStore()
 
     return (
         <View style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -35,7 +37,7 @@ const DrawerCustonContent = (props) => {
                     <Ionicons name="call" size={32} color="#b88144" />
                 </View>
                 <Text style={{ fontSize: 22, fontWeight: "800", color: "#333", letterSpacing: 0.5 }}>Ericall</Text>
-                <Text style={{ fontSize: 14, color: "#888", marginTop: 4, fontWeight: "500" }}>Stay connected</Text>
+                <Text style={{ fontSize: 14, color: "#888", marginTop: 4, fontWeight: "500" }}>{phone || 'Unknown phone'}</Text>
             </View>
 
             <DrawerContentScrollView {...props} contentContainerStyle={{ flex: 1, paddingTop: 10 }}>
