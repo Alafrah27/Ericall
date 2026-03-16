@@ -24,16 +24,8 @@ export default function DrawerLayout() {
                     ),
                 }} />
                 <Drawer.Screen name="addcredit" options={{
-                    drawerLabel: 'Add Credit',
-                    title: 'Add Credit',
-                    drawerIcon: ({ color }) => (
-                        <Ionicons name="add" size={24} color={color} />
-                    ),
-
-                }} />
-                <Drawer.Screen name="balance" options={{
-                    drawerLabel: 'Balance',
-                    title: 'Balance',
+                    drawerLabel: 'Wallet',
+                    title: 'Wallet',
                     drawerIcon: ({ color }) => (
                         <MaterialIcons name="attach-money" size={24} color={color} />
                     ),
@@ -67,7 +59,7 @@ export default function DrawerLayout() {
                     drawerLabel: 'Support and Service',
                     title: 'Support and Service',
                     drawerIcon: ({ color }) => (
-                       <MaterialIcons name="support-agent" size={24} color={color} />
+                        <MaterialIcons name="support-agent" size={24} color={color} />
                     ),
 
                 }} />

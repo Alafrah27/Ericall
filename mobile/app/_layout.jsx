@@ -1,15 +1,23 @@
-import { Stack } from "expo-router";
+import 'react-native-gesture-handler';
+import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ContactProvider } from "../context/contactContext";
 import Toast from 'react-native-toast-message';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useStore } from '../store/store';
 import React, { useEffect, useState } from 'react';
+import * as SplashScreen from 'expo-splash-screen';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
+// Prevent the splash screen from auto-hiding while we check auth
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function RootLayout() {
   const { isLoggedIn, setAuthData } = useStore();
   const [isReady, setIsReady] = useState(false);
+  const segments = useSegments();
+  const router = useRouter();
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -30,25 +38,39 @@ export default function RootLayout() {
     checkAuthStatus();
   }, []);
 
+  useEffect(() => {
+    if (!isReady) return;
+
+    const inAuthGroup = segments[0] === '(auth)';
+
+    if (!isLoggedIn && !inAuthGroup) {
+      // User is not logged in and not currently in the auth group. Redirect to sign-in.
+      router.replace('/(auth)');
+    } else if (isLoggedIn && inAuthGroup) {
+      // User is logged in but stuck in the auth group. Redirect to home.
+      router.replace('/(drawer)/home');
+    }
+
+    // Hide splash screen once routing logic fires
+    SplashScreen.hideAsync().catch(() => {});
+  }, [isLoggedIn, isReady, segments]);
+
   if (!isReady) {
-    // You could return a Splash screen or loading indicator here instead of null
     return null; 
   }
 
   return (
-    <>
-      <ContactProvider>
-
-        <StatusBar style="dark" />
-        <Stack screenOptions={{ headerShown: false }}>
-          {isLoggedIn ? (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <BottomSheetModalProvider>
+        <ContactProvider>
+          <StatusBar style="dark" />
+          <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(drawer)" />
-          ) : (
             <Stack.Screen name="(auth)" />
-          )}
-        </Stack>
-        <Toast />
-      </ContactProvider>
-    </>
+          </Stack>
+          <Toast />
+        </ContactProvider>
+      </BottomSheetModalProvider>
+    </GestureHandlerRootView>
   );
 }

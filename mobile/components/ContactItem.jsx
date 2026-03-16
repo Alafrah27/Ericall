@@ -37,9 +37,9 @@ export default function ContactItem({ contact, onPress }) {
             </View>
 
             {/* Call icon */}
-            <TouchableOpacity style={styles.callIcon} onPress={onPress} activeOpacity={0.5}>
+            {/* <TouchableOpacity style={styles.callIcon} onPress={onPress} activeOpacity={0.5}>
                 <Ionicons name="call-outline" size={20} color="#b88144" />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
         </TouchableOpacity>
     );
 }
