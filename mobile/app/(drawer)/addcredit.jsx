@@ -58,31 +58,8 @@ export default function Addcredit() {
         const handleDeepLink = async (event) => {
             const data = Linking.parse(event.url);
             
-            // Check if this is a paypal redirect
-            if (data.hostname === 'paypal-success' || data.path === 'paypal-success') {
-                WebBrowser.dismissBrowser(); // Close the embedded browser safely
-                setIsProcessing(true);
-                
-                // PayPal will normally append `?token=<order_id>` to our success URL
-                const orderId = data.queryParams?.token; 
-                
-                if (orderId) {
-                    Toast.show({ type: 'info', text1: 'Capturing Payment', text2: 'Please wait...' });
-                    const captureRes = await CapturePaypalPayment(orderId);
-                    
-                    if (captureRes.success) {
-                        Toast.show({ type: 'success', text1: 'Payment Successful', text2: `Added $${selectedAmount} to balance!` });
-                    } else {
-                        Toast.show({ type: 'error', text1: 'Capture Failed', text2: captureRes.message });
-                    }
-                } else {
-                    Toast.show({ type: 'error', text1: 'Payment Error', text2: 'Missing Order ID from PayPal.' });
-                }
-                setIsProcessing(false);
-            } else if (data.hostname === 'paypal-cancel' || data.path === 'paypal-cancel') {
-                WebBrowser.dismissBrowser(); // Close cleanly
-                Toast.show({ type: 'error', text1: 'Cancelled', text2: 'PayPal checkout was cancelled.' });
-                setIsProcessing(false);
+            if (data.hostname === 'paypal-success' || data.path === 'paypal-success' || data.hostname === 'paypal-cancel' || data.path === 'paypal-cancel' || data.queryParams?.paypal === 'success' || data.queryParams?.paypal === 'cancel') {
+                WebBrowser.dismissBrowser(); // Close the embedded browser safely to reveal the new paypal-success screen
             }
         };
 
