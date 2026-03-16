@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeInDown, FadeIn, ZoomIn } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { useStore } from '../store/store';
-import LottieView from 'lottie-react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -12,7 +12,7 @@ export default function PaypalSuccess() {
     const params = useLocalSearchParams();
     const router = useRouter();
     const { CapturePaypalPayment } = useStore();
-    
+
     const [status, setStatus] = useState('processing'); // 'processing', 'success', 'error'
     const [message, setMessage] = useState('Verifying your payment...');
     const [newBalance, setNewBalance] = useState(null);
@@ -50,12 +50,7 @@ export default function PaypalSuccess() {
             <View style={styles.content}>
                 {status === 'processing' && (
                     <Animated.View entering={FadeIn.duration(500)} style={styles.centerBox}>
-                        <LottieView
-                            source={require('../assets/animations/loading.json')} // Ensure you have this dummy json or fallback to activity indicator
-                            autoPlay
-                            loop
-                            style={{ width: 150, height: 150 }}
-                        />
+                        <ActivityIndicator size="large" color="#10B981" style={{ marginBottom: 20, transform: [{ scale: 1.5 }] }} />
                         <Text style={styles.title}>Processing Payment</Text>
                         <Text style={styles.subtitle}>{message}</Text>
                     </Animated.View>
@@ -68,7 +63,7 @@ export default function PaypalSuccess() {
                         </View>
                         <Text style={styles.titleSuccess}>Payment Successful!</Text>
                         <Text style={styles.subtitle}>{message}</Text>
-                        
+
                         {newBalance !== null && (
                             <Animated.View entering={FadeInDown.delay(300).duration(500)} style={styles.balanceCard}>
                                 <Text style={styles.balanceLabel}>New Wallet Balance</Text>
@@ -90,9 +85,9 @@ export default function PaypalSuccess() {
             </View>
 
             <Animated.View style={styles.footer} entering={FadeInDown.delay(600).duration(500)}>
-                <TouchableOpacity 
+                <TouchableOpacity
                     style={[
-                        styles.button, 
+                        styles.button,
                         status === 'error' ? styles.buttonError : styles.buttonSuccess,
                         status === 'processing' && styles.buttonDisabled
                     ]}

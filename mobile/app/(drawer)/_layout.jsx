@@ -39,6 +39,14 @@ export default function DrawerLayout() {
                     ),
 
                 }} />
+                <Drawer.Screen name="transations" options={{
+                    drawerLabel: 'Transactions',
+                    title: 'Transactions History',
+                    drawerIcon: ({ color }) => (
+                        <Ionicons name="receipt-outline" size={24} color={color} />
+                    ),
+
+                }} />
                 <Drawer.Screen name="rate" options={{
                     drawerLabel: 'Rate us',
                     title: 'Rate us',

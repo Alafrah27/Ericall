@@ -15,20 +15,13 @@ const callSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    cost: {
+    TotalCost: {
       type: Number,
       required: true,
     },
     status: {
       type: String,
-      enum: [
-        "ringing",
-        "busy",
-        "completed",
-        "failed",
-        "no-answer",
-        "cancelled",
-      ],
+      enum: ["ringing", "busy", "completed", "failed"],
       default: "ringing",
     },
     twilioCallId: {
