@@ -12,9 +12,13 @@ const CallScreen = () => {
     
     const [callStatus, setCallStatus] = useState('Initiating Secure Call...');
     const [isFailed, setIsFailed] = useState(false);
+    const callInitiated = React.useRef(false);
 
     useEffect(() => {
         const startCall = async () => {
+            if (!phone || callInitiated.current) return;
+            callInitiated.current = true;
+            
             if (!phone) {
                 setCallStatus("Invalid Phone Number");
                 setIsFailed(true);
