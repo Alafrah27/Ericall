@@ -28,17 +28,25 @@ export const MakeCall = async (req, res) => {
     }
 
     const user = await User.findById(userId);
-    if (!user || user.balance < PricePerMinute) {
+    if (!user || !user.phone || user.balance < PricePerMinute) {
       return res
         .status(400)
-        .json({ message: "Insufficient balance for at least 1 minute" });
+        .json({ message: "Insufficient balance or user phone missing" });
     }
 
-    // Initiate the Outbound Call
+    // Sanitize User Phone (Initiator)
+    let userPhone = user.phone;
+    if (userPhone.startsWith("00")) {
+      userPhone = "+" + userPhone.substring(2);
+    } else if (!userPhone.startsWith("+")) {
+      userPhone = "+" + userPhone;
+    }
+
+    // Initiate the Outbound Call to the USER first
     const call = await twilioClient.calls.create({
-      to: phone,
-      from: process.env.TWILIO_PHONE_NUMBER, // Must be +17712431648
-      // Passing target number to the webhook so TwiML knows who to dial
+      to: userPhone,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      // The webhook will dial the recipient (phone) once the user answers
       url: `${process.env.DOMAIN_URL}/api/v1/calls/voice-webhook?target=${encodeURIComponent(phone)}`,
       statusCallback: `${process.env.DOMAIN_URL}/api/v1/calls/call-status?userId=${userId}`,
       statusCallbackEvent: ["completed"],
