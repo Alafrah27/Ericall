@@ -20,6 +20,20 @@ export const MakeCall = async (req, res) => {
 
     if (!phone) return res.status(400).json({ message: "Phone is required" });
 
+    // Prevent duplicate calls: Check if a call for this user is already ringing or in-progress
+    const activeCall = await Call.findOne({
+      userId,
+      status: { $in: ["ringing", "in-progress"] },
+      createdAt: { $gt: new Date(Date.now() - 60000) } // within last 60 seconds
+    });
+
+    if (activeCall) {
+      console.log(`Duplicate call attempt blocked for user: ${userId}`);
+      return res.status(200).json({ message: "Call already in progress", callId: activeCall.twilioCallId });
+    }
+
+    console.log(`Initiating PSTN call: User ${userId} -> ${phone}`);
+
     // Ensure E.164 Format
     if (phone.startsWith("00")) {
       phone = "+" + phone.substring(2);
