@@ -47,6 +47,8 @@ export const MakeCall = async (req, res) => {
     const calling = new Call({
       userId,
       phoneNumber: phone,
+      duration: 0,
+      TotalCost: 0,
       status: "ringing",
       twilioCallId: call.sid,
     });
