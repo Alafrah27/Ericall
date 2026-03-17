@@ -9,6 +9,8 @@ import React, { useEffect, useState } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { useFonts } from 'expo-font';
+import { Ionicons } from '@expo/vector-icons';
 
 // Prevent the splash screen from auto-hiding while we check auth
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -18,6 +20,14 @@ export default function RootLayout() {
   const [isReady, setIsReady] = useState(false);
   const segments = useSegments();
   const router = useRouter();
+
+  const [fontsLoaded, fontError] = useFonts({
+    ...Ionicons.font,
+  });
+
+  useEffect(() => {
+    if (fontError) console.error("Error loading fonts:", fontError);
+  }, [fontError]);
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -39,7 +49,7 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    if (!isReady) return;
+    if (!isReady || !fontsLoaded) return;
 
     const inAuthGroup = segments[0] === '(auth)';
 
@@ -51,11 +61,11 @@ export default function RootLayout() {
       router.replace('/(drawer)/home');
     }
 
-    // Hide splash screen once routing logic fires
+    // Hide splash screen once routing logic fires and fonts are loaded
     SplashScreen.hideAsync().catch(() => {});
-  }, [isLoggedIn, isReady, segments]);
+  }, [isLoggedIn, isReady, fontsLoaded, segments]);
 
-  if (!isReady) {
+  if (!isReady || !fontsLoaded) {
     return null; 
   }
 

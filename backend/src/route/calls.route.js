@@ -1,6 +1,7 @@
 import express from "express";
 import {
   CallStatus,
+  GenerateAccessToken,
   GetCallsHistory,
   MakeCall,
   TwilioWebhook,
@@ -12,6 +13,7 @@ import { validateTwilioRequest } from "../middleWare/TwilioMiddleware.js";
 const router = express.Router();
 
 router.post("/voice-webhook", validateTwilioRequest, TwilioWebhook);
+router.post("/generate-access-token", verifyJWT, GenerateAccessToken);
 router.post("/", verifyJWT, MakeCall);
 router.get("/", verifyJWT, GetCallsHistory);
 router.post("/call-status", validateTwilioRequest, CallStatus);

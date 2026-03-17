@@ -100,4 +100,14 @@ export const useStore = create((set) => ({
       return { success: false, message: error.response?.data?.message || "Could not fetch call history" };
     }
   },
+
+  GetTwilioToken: async () => {
+    try {
+      const res = await instance.post("/calls/generate-access-token");
+      return { success: true, token: res.data.token };
+    } catch (error) {
+      console.error('Get Twilio Token Error:', error.response?.data || error.message);
+      return { success: false, message: error.response?.data?.message || "Failed to generate token" };
+    }
+  },
 }));

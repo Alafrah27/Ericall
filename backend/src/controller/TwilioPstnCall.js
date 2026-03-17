@@ -13,6 +13,38 @@ const EricallProfitMargin = 0.4;
 const PricePerMinute = TwilioCostPricePerMinute * (1 + EricallProfitMargin);
 const PricePerSecond = PricePerMinute / 60;
 
+const AccessToken = twilio.jwt.AccessToken;
+const VoiceGrant = AccessToken.VoiceGrant;
+
+export const GenerateAccessToken = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const identity = `user_${userId}`;
+
+    const accessToken = new AccessToken(
+      process.env.TWILIO_ACCOUNT_SID,
+      process.env.TWILIO_API_SID,
+      process.env.TWILIO_API_SECRECT,
+      { identity: identity }
+    );
+
+    const grant = new VoiceGrant({
+      outgoingApplicationSid: process.env.TWILIO_TWIML_APP_SID,
+      incomingAllow: true, // Allow incoming calls if needed later
+    });
+
+    accessToken.addGrant(grant);
+
+    res.status(200).json({
+      identity: identity,
+      token: accessToken.toJwt(),
+    });
+  } catch (error) {
+    console.error("GenerateAccessToken Error:", error);
+    res.status(500).json({ message: "Failed to generate token", error: error.message });
+  }
+};
+
 export const MakeCall = async (req, res) => {
   try {
     let { phone } = req.body;
@@ -58,8 +90,9 @@ export const MakeCall = async (req, res) => {
 
     // Initiate the Outbound Call to the USER first
     const call = await twilioClient.calls.create({
-      to: userPhone,
       from: process.env.TWILIO_PHONE_NUMBER,
+      to: userPhone,
+
       // The webhook will dial the recipient (phone) once the user answers
       url: `${process.env.DOMAIN_URL}/api/v1/calls/voice-webhook?target=${encodeURIComponent(phone)}`,
       statusCallback: `${process.env.DOMAIN_URL}/api/v1/calls/call-status?userId=${userId}`,
@@ -87,15 +120,23 @@ export const MakeCall = async (req, res) => {
 };
 
 export const TwilioWebhook = async (req, res) => {
-  const targetNumber = req.query.target;
+  const targetNumber = req.query.target || req.body.target || req.body.To;
   const response = new twilio.twiml.VoiceResponse();
 
-  if (targetNumber) {
-    response.say("Connecting your Ericall.");
-    // This connects the caller to the Eritrean number
-    response.dial(targetNumber);
+  console.log("Twilio Webhook Target:", targetNumber);
+
+  if (targetNumber && targetNumber.startsWith('+')) {
+    // If it's a PSTN number, dial it
+    const dial = response.dial({
+      callerId: process.env.TWILIO_PHONE_NUMBER,
+    });
+    dial.number(targetNumber);
+  } else if (targetNumber) {
+    // If it's a client identity, dial the client
+    const dial = response.dial();
+    dial.client(targetNumber);
   } else {
-    response.say("Error: No destination number provided.");
+    response.say("Error: No destination provided.");
   }
 
   res.type("text/xml");
