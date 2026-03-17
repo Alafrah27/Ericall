@@ -1,47 +1,80 @@
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocalSearchParams as useExpoParams, useRouter as useExpoRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useStore } from '../../store/store';
+import TwilioVoiceService from '../../utils/TwilioVoiceService';
 
 const CallScreen = () => {
     const { id, name, phone } = useExpoParams();
     const router = useExpoRouter();
-    const { InitiateCall } = useStore();
     
     const [callStatus, setCallStatus] = useState('Initiating Secure Call...');
     const [isFailed, setIsFailed] = useState(false);
-    const callInitiated = React.useRef(false);
+    const [timer, setTimer] = useState(0);
+    const callInitiated = useRef(false);
+    const timerRef = useRef(null);
 
     useEffect(() => {
         const startCall = async () => {
             if (!phone || callInitiated.current) return;
             callInitiated.current = true;
             
-            if (!phone) {
-                setCallStatus("Invalid Phone Number");
+            try {
+                await TwilioVoiceService.makeCall(phone, (status) => {
+                    setCallStatus(status);
+                    if (status === 'Connected') {
+                        startTimer();
+                    } else if (status === 'Disconnected') {
+                        stopTimer();
+                        setTimeout(() => router.back(), 2000);
+                    }
+                });
+                setCallStatus("Ringing...");
+            } catch (error) {
+                setCallStatus("Call Failed");
                 setIsFailed(true);
-                return;
-            }
-
-            const res = await InitiateCall(phone);
-            if (res.success) {
-                setCallStatus("Calling recipient...");
-            } else {
-                setCallStatus(res.message || "Failed to initiate call");
-                setIsFailed(true);
-                Alert.alert("Call Failed", res.message || "Something went wrong.");
+                Alert.alert("Call Failed", error.message || "Something went wrong.");
             }
         };
 
         startCall();
+
+        return () => {
+            TwilioVoiceService.hangup();
+            stopTimer();
+        };
     }, [phone]);
+
+    const startTimer = () => {
+        if (timerRef.current) return;
+        timerRef.current = setInterval(() => {
+            setTimer((prev) => prev + 1);
+        }, 1000);
+    };
+
+    const stopTimer = () => {
+        if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+        }
+    };
+
+    const formatTime = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    };
+
+    const handleHangup = () => {
+        TwilioVoiceService.hangup();
+        router.back();
+    };
 
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                <TouchableOpacity onPress={handleHangup} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color="#111827" />
                 </TouchableOpacity>
                 <Text style={styles.title}>Direct Call</Text>
@@ -54,8 +87,12 @@ const CallScreen = () => {
                 <Text style={styles.contactName}>{name || 'Recipient'}</Text>
                 <Text style={styles.contactPhone}>{phone || 'Unknown Number'}</Text>
                 
+                {callStatus === 'Connected' && (
+                    <Text style={styles.timerText}>{formatTime(timer)}</Text>
+                )}
+
                 <View style={styles.statusContainer}>
-                    {!isFailed && <ActivityIndicator size="small" color="#b88144" style={{ marginRight: 8 }} />}
+                    {(!isFailed && callStatus !== 'Disconnected') && <ActivityIndicator size="small" color="#b88144" style={{ marginRight: 8 }} />}
                     <Text style={[styles.callStatus, isFailed && styles.callStatusError]}>
                         {callStatus}
                     </Text>
@@ -63,12 +100,12 @@ const CallScreen = () => {
                 
                 {!isFailed && (
                     <Text style={styles.instructionText}>
-                        The system is placing a direct PSTN call to the number above.
+                        Connecting to Eritrea (+291) via Twilio Voice.
                     </Text>
                 )}
 
                 <View style={styles.actionsRow}>
-                    <TouchableOpacity style={styles.endCallButton} onPress={() => router.back()}>
+                    <TouchableOpacity style={styles.endCallButton} onPress={handleHangup}>
                         <Ionicons name="call" size={32} color="#fff" style={{ transform: [{ rotate: '135deg' }] }} />
                     </TouchableOpacity>
                 </View>
@@ -116,6 +153,12 @@ const styles = StyleSheet.create({
         color: '#6b7280',
         fontWeight: '500',
         marginBottom: 12,
+    },
+    timerText: {
+        fontSize: 24,
+        fontWeight: '600',
+        color: '#111827',
+        marginBottom: 20,
     },
     statusContainer: {
         flexDirection: 'row',
